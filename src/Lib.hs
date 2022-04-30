@@ -35,8 +35,8 @@ variants hist = do
      then return $ reverse ("" : hist)
      else variants (next : hist)
 
--- shipping ["_cgv","cv", "_cv", "c",  "_cg","g", "_g",""] --> 
---              [">_g", "<_", ">_v", "<_g",">_c","<_",">_g"]
+-- shipping ["_cgv", "cv",  "_cv",   "c",  "_cg",  "g", "_g", ""] --> 
+--          [">_g" , "<_",  ">_v", "<_g",  ">_c", "<_", ">_g"]
 shipping :: Hist -> Hist
 shipping hist = tail $ zipWith g hist ("" : hist)
  where

@@ -4,7 +4,7 @@ import Lib
 import System.IO
 import Control.Monad (when)
 import Control.Concurrent
-import Data.List (sort)
+import Data.List (sort, (\\))
 import Consul
 
 main :: IO ()
@@ -21,29 +21,55 @@ main1 s = let
    showFilm s'
    main
 
+
+
 showFilm :: State -> IO ()
 showFilm initState | (not . isValid . sort) initState = 
    putStrLn "impossible"
+
 showFilm initState = let
    solve state = variants [sort state] 
    fstHist = (head . solve) initState
    movie = shipping fstHist
  in do
-   mapM_ showSeries movie
-
-showSeries :: String -> IO()  -- "<_cgv"
-showSeries (c : _ : cs) = do
-   mapM_ (showCadr load) way
-   threadDelay 500000
- where 
-   way = if c == '>' then [10..50] else [50,49..10] 
-   load = if null cs then "_" else cs 
-   
-showCadr load col  = do
+   putStr hideCur 
    putStr clrscr
-   putStr $ "|||||||||" ++ rc 0 55 ++ "||||||||||"
-   --putStrLn  $ rc 0 col ++ "\\_"++ load ++"_/"
-   putStr $ rc 0 col ++ "\\___/"
-   putStrLn $ back 3 ++ load
-   --hFlush stdout
+   mapM_ showSeries (zip fstHist movie)
+   putStrLn showCur
+
+
+--            ("_cgv", ">_g")
+showSeries :: (String, String) -> IO()  
+showSeries (onBank, boatStr) = do   
+   -- перед погрузкой
+   putStr $ rc 1 1 ++ "     " ++  rc 1 1 ++ onBank' ++
+            rc 1 50 ++ "     " ++ rc 1 50 ++ onRight
+   threadDelay 1000000
+   -- перед проходом
+   putStr $ rc 1 1 ++ "     " ++  rc 1 1 ++ onLeft 
+   -- проход лодки
+   mapM_ (showBoat load' d) way
+   -- после прохода
+   putStr $ rc 1 50 ++ "     " ++ rc 1 50 ++ onRight
+   showBoat load' d (if d == '<' then 6 else 44)
+   threadDelay 1000000
+   -- после разгрузки
+   putStr $ rc 1 50 ++ "     " ++ rc 1 50 ++ onRight ++ load
+   showBoat "_" d (if d == '<' then 6 else 44)
+   threadDelay 1000000
+ where 
+   (d : _ : load) = boatStr
+   onBank' = onBank \\ ['_']
+   way = if d == '>' then [6..44] else [44,43..6] 
+   load' = if null load then "_" else load
+   onLeft = onBank \\ ('_' : load)
+   onRight = ("cgv" \\ onLeft) \\ load
+
+showBoat :: String -> Char -> Int -> IO ()
+showBoat load dir col  = do
+   putStr $ rc 1 (col + d) ++ "     " ++ rc 1 col ++ "\\___/" ++ back 3 ++ load
+   hFlush stdout
    threadDelay 50000
+ where 
+    d = if dir == '>' then -1 else 1
+    
