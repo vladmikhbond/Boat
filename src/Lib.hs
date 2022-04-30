@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-module Lib (mainBoat) where
+module Lib (variants, shipping, State, isValid) where
 
-import Data.List ( (\\), sort, isPrefixOf)
+import Data.List ( (\\), sort)
 
 
 -- состояние - упоряд. множ. объектов, включая лодку, на левом берегу (множ на правом = разность)
@@ -35,9 +35,8 @@ variants hist = do
      then return $ reverse ("" : hist)
      else variants (next : hist)
 
-solve x = variants [sort x]
-
--- shipping ["_cgv","cv","_cv","c","_cg","g","_g",""]
+-- shipping ["_cgv","cv", "_cv", "c",  "_cg","g", "_g",""] --> 
+--              [">_g", "<_", ">_v", "<_g",">_c","<_",">_g"]
 shipping :: Hist -> Hist
 shipping hist = tail $ zipWith g hist ("" : hist)
  where
@@ -45,16 +44,4 @@ shipping hist = tail $ zipWith g hist ("" : hist)
        then '>' : (y \\ x)
        else '<' : (x \\ y)
 
-showBoat :: String -> IO()
-showBoat (c : _ : cs) = putStrLn  $ "\\_"++ g ++"_/ " ++ [c]
-    where g = if null cs then "_" else cs 
-
-
-mainBoat :: State -> IO ()
-mainBoat x | (not . isValid . sort) x = putStrLn "impossible"
-mainBoat x = let
-   solve x = variants [sort x] 
-   hist = (shipping . head . solve) x
- in do
-   mapM_ showBoat hist
 
