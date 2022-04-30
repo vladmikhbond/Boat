@@ -42,26 +42,25 @@ showFilm initState = let
 showSeries :: (String, String) -> IO()  
 showSeries (onBank, boatStr) = do   
    -- перед погрузкой
-   putStr $ rc 1 1 ++ "     " ++  rc 1 1 ++ onBank' ++
-            rc 1 50 ++ "     " ++ rc 1 50 ++ onRight
+   putStr $ rc 1 1  ++ take 5 (onBank' ++ "      ") ++
+            rc 1 50 ++ take 5 (onRight ++ "      ")
    threadDelay 1000000
    -- перед проходом
-   putStr $ rc 1 1 ++ "     " ++  rc 1 1 ++ onLeft 
+   putStr $ rc 1 1  ++ take 5 (onLeft ++ "      ") 
+   showBoat "_" d (if d == '>' then 6 else 44)
    -- проход лодки
-   mapM_ (showBoat load' d) way
+   mapM_ (showBoat load d) way
    -- после прохода
-   putStr $ rc 1 50 ++ "     " ++ rc 1 50 ++ onRight
-   showBoat load' d (if d == '<' then 6 else 44)
-   threadDelay 1000000
+   putStr $ rc 1 50 ++ take 5 (onRight ++ "      ")
+   showBoat load d (if d == '<' then 6 else 44)
    -- после разгрузки
-   putStr $ rc 1 50 ++ "     " ++ rc 1 50 ++ onRight ++ load
+   putStr $ rc 1 50 ++ take 5 (onRight ++ load ++ "      ")
    showBoat "_" d (if d == '<' then 6 else 44)
    threadDelay 1000000
  where 
    (d : _ : load) = boatStr
    onBank' = onBank \\ ['_']
    way = if d == '>' then [6..44] else [44,43..6] 
-   load' = if null load then "_" else load
    onLeft = onBank \\ ('_' : load)
    onRight = ("cgv" \\ onLeft) \\ load
 
