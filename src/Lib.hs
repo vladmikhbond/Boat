@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-module Lib (variants, shipping, State, isValid) where
+module Lib (variants, makeCargo, State, isValid) where
 
 import Data.List ( (\\), sort)
 
@@ -44,4 +44,9 @@ shipping hist = tail $ zipWith g hist ("" : hist)
        then '>' : (y \\ x)
        else '<' : (x \\ y)
 
+
+
+makeCargo initState = zip fstHist (shipping fstHist)
+  where
+   fstHist = head (variants [initState])
 
