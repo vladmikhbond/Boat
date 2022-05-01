@@ -19,46 +19,58 @@ main = do
        else showTraffic (makeTrafficSt init') 
       main)
 
-showTraffic y = do
+showTraffic :: [(State, Boat)] -> IO ()
+showTraffic traffic = do
    putStr hideCur
    putStr clrscr
-   mapM_ showRoute y
+   mapM_ showRoute traffic
    putStrLn showCur
- 
+
+(bL, bR) = (5, 44) 
 
 --          ("_cgv", ">_g")
 showRoute :: (State, Boat) -> IO()
-showRoute (onBank, boat) = do
+showRoute (state, boat) = do
    -- перед погрузкой
-   drawL onBank'
-   drawR onRight 
-   threadDelay 1000000
-   -- перед проходом
    drawL onLeft
-   showBoat "_" d (if d == '>' then 6 else 44)
-   -- проход лодки
-   mapM_ (showBoat load d) way
-   -- после прохода
-   drawR onRight
-   showBoat load d (if d == '<' then 6 else 44)
-   -- после разгрузки
-   drawR $ onRight ++ load
-   showBoat "_" d (if d == '<' then 6 else 44)
+   drawR onRight 
+   showBoat "_" dir (if dir == '>' then bL else bR)
    threadDelay 1000000
+   -- после погрузки
+   drawL $ onLeft \\ load
+   drawR $ onRight \\ load 
+   showBoat load dir (if dir == '>' then bL else bR)
+   threadDelay 1000000
+   -- проход лодки
+   mapM_ (showBoat load dir) way
+   -- перед разгрузкой
+   showBoat load dir (if dir == '<' then bL else bR)
+   threadDelay 1000000
+   -- после разгрузки
+   if dir == '<' 
+    then drawL $ onLeft ++ load
+    else drawR $ onRight ++ load
+   showBoat "_" dir (if dir == '<' then bL else bR)
+   --threadDelay 1000000
  where
    drawL x = putStr $ rc 1 1  ++ take 5 (x ++ "      ")
-   drawR x = putStr $ rc 1 50 ++ take 5 (x ++ "      ")  
-   (d : _ : load) = boat
-   onBank' = onBank \\ ['_']
-   way = if d == '>' then [6..44] else [44,43..6]
-   onLeft = onBank \\ ('_' : load)
-   onRight = ("cgv" \\ onLeft) \\ load
+   drawR x = putStr $ rc 1 (bR + 6) ++ take 5 (x ++ "      ")  
+   
+   onLeft = state \\ [man]
+   onRight = goods \\ onLeft
 
-showBoat :: String -> Char -> Int -> IO ()
+   (dir : _ : load) = boat
+   way = if dir == '>' then [bL..bR] else [bR,(pred bR)..bL]
+   
+
+showBoat :: 
+   String    -- load
+   -> Char   -- dir: '>' , '<' 
+   -> Int    -- x-coord
+   -> IO ()
 showBoat load dir col  = do
+   let d = if dir == '>' then -1 else 1
    putStr $ rc 1 (col + d) ++ "     " ++ rc 1 col ++ "\\___/" ++ back 3 ++ load
    hFlush stdout
    threadDelay 50000
- where
-    d = if dir == '>' then -1 else 1
-
+    
