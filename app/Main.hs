@@ -6,12 +6,17 @@ import Control.Monad (unless)
 import Control.Concurrent ( threadDelay )
 import Data.List (sort, (\\))
 import Consul
+--import System.Console.Haskeline
 
 main :: IO ()
 main = do
-   putStr $ "q - quite >"++ gray ++"    " ++ mcgv ++ back 8 ++ norm
+   
+   putStr $ "q - quite >"++ gray ++"    " ++ "bcgv" ++ back 8 ++ norm
    hFlush stdout
-   init <- getLine
+   init' <- getLine
+   let init = map (\x -> if x == 'b' then '_' else x) init'
+
+
    unless ('q' `elem` init) (do
       let init' = if null init then mcgv else sort init
       if not (isValid init') 
