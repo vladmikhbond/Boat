@@ -32,35 +32,32 @@ showTraffic traffic = do
 showRoute :: (State, Boat) -> IO()
 showRoute (state, boat) = do
    -- перед погрузкой
-   drawL onLeft
-   drawR onRight 
+   drawGoods onLeft onRight 
    showBoat "_" dir (if dir == '>' then bL else bR)
-   threadDelay 1000000
+   pause
    -- после погрузки
-   drawL $ onLeft \\ load
-   drawR $ onRight \\ load 
+   drawGoods (onLeft \\ load) (onRight \\ load)
    showBoat load dir (if dir == '>' then bL else bR)
-   threadDelay 1000000
+   pause
    -- проход лодки
-   mapM_ (showBoat load dir) way
+   mapM_ (showBoat load dir) dist
    -- перед разгрузкой
-   showBoat load dir (if dir == '<' then bL else bR)
-   threadDelay 1000000
+   pause
    -- после разгрузки
    if dir == '<' 
-    then drawL $ onLeft ++ load
-    else drawR $ onRight ++ load
+    then drawGoods (onLeft ++ load) (onRight \\ load)
+    else drawGoods (onLeft \\ load) (onRight ++ load)
    showBoat "_" dir (if dir == '<' then bL else bR)
-   --threadDelay 1000000
+
  where
-   drawL x = putStr $ rc 1 1  ++ take 5 (x ++ "      ")
-   drawR x = putStr $ rc 1 (bR + 6) ++ take 5 (x ++ "      ")  
-   
+   (dir : _ : load) = boat
+   drawGoods l r = putStr $ 
+      rc 1 1  ++ take 5 (l ++ "      ") ++
+      rc 1 (bR + 6) ++ take 5 (r ++ "      ")  
+   pause =  threadDelay 500000   
    onLeft = state \\ [man]
    onRight = goods \\ onLeft
-
-   (dir : _ : load) = boat
-   way = if dir == '>' then [bL..bR] else [bR,(pred bR)..bL]
+   dist = if dir == '>' then [bL..bR] else [bR,(pred bR)..bL]
    
 
 showBoat :: 
