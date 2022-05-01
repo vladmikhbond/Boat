@@ -18,5 +18,10 @@ gray = "\27[1m\27[30m"
 
 -- cur movement
 rc row col = "\27["++ show row ++";"++ show col ++"f"  -- row,col = 1,2,3...
+up n = "\27["++ show n ++"A"
+down n = "\27["++ show n ++"B"
+forward n = "\27["++ show n ++"C"
 back n = "\27["++ show n ++"D"
+
+
 
