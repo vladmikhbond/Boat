@@ -9,44 +9,46 @@ import Consul
 
 main :: IO ()
 main = do
-   putStr $ "q - quite >"++ gray ++"    _cgv" ++ back 8 ++ norm
+   putStr $ "q - quite >"++ gray ++"    " ++ mcgv ++ back 8 ++ norm
    hFlush stdout
    init <- getLine
    unless ('q' `elem` init) (do
-      let init' = if null init then "_cgv" else sort init
+      let init' = if null init then mcgv else sort init
       if not (isValid init') 
        then putStrLn "impossible"
-       else showCargo (makeCargo init') 
+       else showTraffic (makeTrafficSt init') 
       main)
 
-showCargo y = do
+showTraffic y = do
    putStr hideCur
    putStr clrscr
-   mapM_ showSeries y
+   mapM_ showRoute y
    putStrLn showCur
  
 
---            ("_cgv", ">_g")
-showSeries :: (String, String) -> IO()
-showSeries (onBank, boatStr) = do
+--          ("_cgv", ">_g")
+showRoute :: (State, Boat) -> IO()
+showRoute (onBank, boat) = do
    -- перед погрузкой
-   putStr $ rc 1 1  ++ take 5 (onBank' ++ "      ") ++
-            rc 1 50 ++ take 5 (onRight ++ "      ")
+   drawL onBank'
+   drawR onRight 
    threadDelay 1000000
    -- перед проходом
-   putStr $ rc 1 1  ++ take 5 (onLeft ++ "      ")
+   drawL onLeft
    showBoat "_" d (if d == '>' then 6 else 44)
    -- проход лодки
    mapM_ (showBoat load d) way
    -- после прохода
-   putStr $ rc 1 50 ++ take 5 (onRight ++ "      ")
+   drawR onRight
    showBoat load d (if d == '<' then 6 else 44)
    -- после разгрузки
-   putStr $ rc 1 50 ++ take 5 (onRight ++ load ++ "      ")
+   drawR $ onRight ++ load
    showBoat "_" d (if d == '<' then 6 else 44)
    threadDelay 1000000
  where
-   (d : _ : load) = boatStr
+   drawL x = putStr $ rc 1 1  ++ take 5 (x ++ "      ")
+   drawR x = putStr $ rc 1 50 ++ take 5 (x ++ "      ")  
+   (d : _ : load) = boat
    onBank' = onBank \\ ['_']
    way = if d == '>' then [6..44] else [44,43..6]
    onLeft = onBank \\ ('_' : load)

@@ -1,52 +1,53 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-module Lib (variants, makeCargo, State, isValid) where
+module Lib (makeTrafficSt, isValid, State, Boat, mcgv, man, goods) where
 
 import Data.List ( (\\), sort)
-
 
 -- состояние - упоряд. множ. объектов, включая лодку, на левом берегу (множ на правом = разность)
 type State = [Char]
 type Hist  = [State]
+type Boat  = [Char]
 
-boat : goods = "_cgv"
+mcgv = "_cgv"
+man : goods = mcgv
 invalidStates = map sort ["gv", "cg", "cgv", "_c", "_v", "_"]
 
 -- переходы: если лодка на лев берегу, удалить пустую лодку или лодку с любым объектом
---           иначе добавить пустую лодку или лодку с любым объектом с правого берега
-nextStates :: State -> [State]
-nextStates state = let
-   thisBank = state \\ [boat]
+-- если на правом, добавить пустую лодку или лодку с любым объектом с правого берега
+getNextStates :: State -> [State]
+getNextStates state = let
+   thisBank = state \\ [man]
    otherBank = goods \\ state
-   states = if boat `elem` state
+   states = if man `elem` state
     then thisBank : [ thisBank \\ [x] | x <- thisBank]
-    else (boat : state) : [boat : x : state | x <- otherBank]
+    else (man : state) : [man : x : state | x <- otherBank]
  in
    map sort states
 
 isValid :: State -> Bool
 isValid state = state `notElem` invalidStates && 
-   all (`elem` "_cgv") state
+   all (`elem` mcgv) state
 
-variants :: Hist -> [Hist]
-variants hist = do
-   let nexts = filter isValid (nextStates $ head hist)
+doVariants :: Hist -> [Hist]
+doVariants hist = do
+   let nexts = filter isValid (getNextStates $ head hist)
    next <- filter (`notElem` hist) nexts
    if null next
      then return $ reverse ("" : hist)
-     else variants (next : hist)
+     else doVariants (next : hist)
 
--- shipping ["_cgv", "cv",  "_cv",   "c",  "_cg",  "g", "_g", ""] --> 
---          [">_g" , "<_",  ">_v", "<_g",  ">_c", "<_", ">_g"]
-shipping :: Hist -> Hist
-shipping hist = tail $ zipWith g hist ("" : hist)
+-- makeTraffic ["_cgv", "cv",  "_cv",   "c",  "_cg",  "g", "_g", ""]
+--        ==>  [">_g" , "<_",  ">_v", "<_g",  ">_c", "<_", ">_g"]
+makeTraffic :: Hist -> [Boat]
+makeTraffic hist = tail $ zipWith f hist ("" : hist)
  where
-    g x y = if length x <= length y
-       then '>' : (y \\ x)
-       else '<' : (x \\ y)
+   f x y | length x < length y = '>' : (y \\ x)
+         | length x > length y = '<' : (x \\ y)
+         | otherwise = error "" 
+      
 
-
-
-makeCargo initState = zip fstHist (shipping fstHist)
+makeTrafficSt :: State -> [(State, Boat)]
+makeTrafficSt initState = zip hist1 (makeTraffic hist1)
   where
-   fstHist = head (variants [initState])
+   hist1 = head (doVariants [initState])
 
