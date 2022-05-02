@@ -6,26 +6,8 @@ import Control.Monad (unless)
 import Control.Concurrent ( threadDelay )
 import Data.List (sort, (\\))
 import Consul
-import System.Console.Haskeline
-
 import Control.Monad.IO.Class
 
-
-repl :: [Char] -> InputT IO [Char]
-repl cs = do
-  minput <- getInputChar ""
-  
-  case minput of
-    Nothing -> return cs
-    Just '.' -> return cs
-    Just c ->  do 
-       liftIO (putStr (rc 1 (length cs + 2))) 
-       repl (c : cs)   
-
-ma = do
-   putStr clrscr
-   xx <- runInputT defaultSettings (repl "")
-   putStr xx
 
 main = do
    putStrLn "What are on the left bank?"

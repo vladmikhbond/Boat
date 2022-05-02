@@ -33,7 +33,6 @@ library
       src
   build-depends:
       base >=4.7 && <5
-    , haskeline
   default-language: Haskell2010
 
 executable Boat-exe
@@ -46,7 +45,6 @@ executable Boat-exe
   build-depends:
       Boat
     , base >=4.7 && <5
-    , haskeline
   default-language: Haskell2010
 
 test-suite Boat-test
@@ -60,5 +58,4 @@ test-suite Boat-test
   build-depends:
       Boat
     , base >=4.7 && <5
-    , haskeline
   default-language: Haskell2010
