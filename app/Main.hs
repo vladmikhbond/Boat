@@ -11,8 +11,6 @@ import System.Console.Haskeline
 import Control.Monad.IO.Class
 
 
-
---f prompt =  runInputT defaultSettings (getInputLine prompt)
 repl :: [Char] -> InputT IO [Char]
 repl cs = do
   minput <- getInputChar ""
@@ -22,9 +20,7 @@ repl cs = do
     Just '.' -> return cs
     Just c ->  do 
        liftIO (putStr (rc 1 (length cs + 2))) 
-       repl (c : cs)
-
-   
+       repl (c : cs)   
 
 ma = do
    putStr clrscr
@@ -32,14 +28,17 @@ ma = do
    putStr xx
 
 main = do
-   putStr $ "q - quite >"++ gray ++"    " ++ "bcgv" ++ back 8 ++ norm
+   putStrLn "What are on the left bank?"
+   putStr $ green ++ "c" ++ norm ++ "-cabbage, " 
+         ++ blue ++ "g" ++ norm ++ "-goat, "
+         ++ red ++ "w" ++ norm ++ "-wolf, b-boat, q-quite >"
+         ++ gray ++"    " ++ "bcgv" ++ back 8 ++ norm
    hFlush stdout
    init' <- getLine
    let init = map (\x -> if x == 'b' then '_' else x) init'
 
-
    unless ('q' `elem` init) (do
-      let init' = if null init then mcgv else sort init
+      let init' = if null init then bcgv else sort init
       if not (isValid init')
        then putStrLn "impossible"
        else drowTraffic (makeTrafficSt init')
@@ -103,7 +102,7 @@ showColored cs = concatMap showC cs ++ norm
  where
    showC 'c' = green ++ "c"
    showC 'g' = blue ++ "g"
-   showC 'v' = red ++ "v"
+   showC 'w' = red ++ "w"
    showC x = [x]
 
 

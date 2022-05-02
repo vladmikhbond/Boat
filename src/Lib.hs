@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-module Lib (makeTrafficSt, isValid, State, Boat, mcgv, man, goods) where
+module Lib (makeTrafficSt, isValid, State, Boat, bcgv, man, goods) where
 
 import Data.List ( (\\), sort)
 
@@ -8,9 +8,9 @@ type State = [Char]
 type Hist  = [State]
 type Boat  = [Char]
 
-mcgv = "_cgv"
-man : goods = mcgv
-invalidStates = map sort ["gv", "cg", "cgv", "_c", "_v", "_"]
+bcgv = "_cgw"
+man : goods = bcgv
+invalidStates = map sort ["gw", "cg", "cgw", "_c", "_w", "_"]
 
 -- переходы: если лодка на лев берегу, удалить пустую лодку или лодку с любым объектом
 -- если на правом, добавить пустую лодку или лодку с любым объектом с правого берега
@@ -26,7 +26,7 @@ getNextStates state = let
 
 isValid :: State -> Bool
 isValid state = state `notElem` invalidStates && 
-   all (`elem` mcgv) state
+   all (`elem` bcgv) state
 
 doVariants :: Hist -> [Hist]
 doVariants hist = do
@@ -36,8 +36,8 @@ doVariants hist = do
      then return $ reverse ("" : hist)
      else doVariants (next : hist)
 
--- makeTraffic ["_cgv", "cv",  "_cv",   "c",  "_cg",  "g", "_g", ""]
---        ==>  [">_g" , "<_",  ">_v", "<_g",  ">_c", "<_", ">_g"]
+-- makeTraffic ["_cgw", "cw",  "_cw",   "c",  "_cg",  "g", "_g", ""]
+--        ==>  [">_g" , "<_",  ">_w", "<_g",  ">_c", "<_", ">_g"]
 makeTraffic :: Hist -> [Boat]
 makeTraffic hist = tail $ zipWith f hist ("" : hist)
  where
