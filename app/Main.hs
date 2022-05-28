@@ -14,13 +14,13 @@ main = do
    putStr $ green ++ "c" ++ norm ++ "-cabbage, " 
          ++ blue ++ "g" ++ norm ++ "-goat, "
          ++ red ++ "w" ++ norm ++ "-wolf, b-boat, q-quite >"
-         ++ gray ++"    " ++ "bcgv" ++ back 8 ++ norm
+         ++ gray ++"    " ++ "bcgw" ++ back 8 ++ norm
    hFlush stdout
    init' <- getLine
    let init = map (\x -> if x == 'b' then '_' else x) init'
 
    unless ('q' `elem` init) (do
-      let init' = if null init then bcgv else sort init
+      let init' = if null init then bcgw else sort init
       if not (isValid init')
        then putStrLn "impossible"
        else drowTraffic (makeTrafficSt init')

@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-module Lib (makeTrafficSt, isValid, State, Boat, bcgv, man, goods) where
+module Lib (makeTrafficSt, isValid, State, Boat, bcgw, man, goods) where
 
 import Data.List ( (\\), sort)
 
@@ -8,8 +8,8 @@ type State = [Char]
 type Hist  = [State]
 type Boat  = [Char]
 
-bcgv = "_cgw"
-man : goods = bcgv
+bcgw = "_cgw"
+man : goods = bcgw
 invalidStates = map sort ["gw", "cg", "cgw", "_c", "_w", "_"]
 
 -- переходы: если лодка на лев берегу, удалить пустую лодку или лодку с любым объектом
@@ -26,7 +26,7 @@ getNextStates state = let
 
 isValid :: State -> Bool
 isValid state = state `notElem` invalidStates && 
-   all (`elem` bcgv) state
+   all (`elem` bcgw) state
 
 doVariants :: Hist -> [Hist]
 doVariants hist = do
